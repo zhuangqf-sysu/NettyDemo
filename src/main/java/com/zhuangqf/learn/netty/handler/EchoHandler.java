@@ -1,20 +1,17 @@
 package com.zhuangqf.learn.netty.handler;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.SimpleChannelInboundHandler;
 
 /**
  * @author zhuangqf
  */
-public class EchoHandler extends ChannelInboundHandlerAdapter{
+public class EchoHandler extends SimpleChannelInboundHandler<ByteBuf>{
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        ctx.write(msg);
+    protected void channelRead0(ChannelHandlerContext channelHandlerContext, ByteBuf buf) throws Exception {
+        channelHandlerContext.writeAndFlush(buf.retain());
     }
 
-    @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        ctx.writeAndFlush(ctx.alloc().buffer(2).writeChar('\r').writeChar('\n'));
-    }
 }
