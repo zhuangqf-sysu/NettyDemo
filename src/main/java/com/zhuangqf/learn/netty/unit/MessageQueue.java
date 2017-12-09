@@ -7,18 +7,18 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class MessageQueue {
 
-    private static final ConcurrentLinkedQueue<String> messageQueue = new ConcurrentLinkedQueue<>();
+    private static final ConcurrentLinkedQueue<String> MESSAGE_QUEUE = new ConcurrentLinkedQueue<>();
 
     public static String get(){
-        if(!messageQueue.isEmpty()) {
-            return messageQueue.poll();
+        if(!MESSAGE_QUEUE.isEmpty()) {
+            return MESSAGE_QUEUE.poll();
         } else {
             return null;
         }
     }
 
     public static void put(String message){
-        messageQueue.offer(message);
+        MESSAGE_QUEUE.offer(message);
     }
 
 }

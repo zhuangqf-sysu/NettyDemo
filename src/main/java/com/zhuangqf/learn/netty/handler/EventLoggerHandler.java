@@ -13,59 +13,59 @@ import org.slf4j.LoggerFactory;
 public class EventLoggerHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger logger = LoggerFactory.getLogger(EventLoggerHandler.class);
-    private static final String message = "[Channel Event Log] ";
+    private static final String MESSAGE = "[Channel Event Log] ";
 
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
-        logger.debug(message+"channelRegistered");
+        logger.debug(MESSAGE +"channelRegistered");
     }
 
     @Override
     public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
-        logger.debug(message+"channelUnregistered");
+        logger.debug(MESSAGE +"channelUnregistered");
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
-        logger.debug(message+"channelActive");
+        logger.debug(MESSAGE +"channelActive");
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);
-        logger.debug(message+"channelInactive");
+        logger.debug(MESSAGE +"channelInactive");
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         super.channelRead(ctx,msg);
         ByteBuf in = (ByteBuf) msg;
-        logger.debug(message+"channelRead:"+ in.toString(CharsetUtil.UTF_8));
+        logger.debug(MESSAGE +"channelRead:"+ in.toString(CharsetUtil.UTF_8));
     }
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
         super.channelReadComplete(ctx);
-        logger.debug(message+"channelReadComplete");
+        logger.debug(MESSAGE +"channelReadComplete");
     }
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         super.userEventTriggered(ctx,evt);
-        logger.debug(message+"userEventTriggered:"+evt);
+        logger.debug(MESSAGE +"userEventTriggered:"+evt);
     }
 
     @Override
     public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception {
         super.channelWritabilityChanged(ctx);
-        logger.debug(message+"channelWritabilityChanged");
+        logger.debug(MESSAGE +"channelWritabilityChanged");
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         super.exceptionCaught(ctx,cause);
-        logger.error(message+"exceptionCaught："+cause.getMessage());
+        logger.error(MESSAGE +"exceptionCaught："+cause.getMessage());
         cause.printStackTrace();
     }
 }
