@@ -3,7 +3,10 @@ package com.zhuangqf.learn.netty.handler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
-public class EachHandler extends ChannelInboundHandlerAdapter{
+/**
+ * @author zhuangqf
+ */
+public class EchoHandler extends ChannelInboundHandlerAdapter{
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {

@@ -1,5 +1,6 @@
 package com.zhuangqf.learn.netty.server;
 
+import com.zhuangqf.learn.netty.AbstractEndpoint;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -8,23 +9,12 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+/**
+ * @author zhuangqf
+ */
+public class DefaultServer extends AbstractEndpoint implements Runnable{
 
-public class RunnableServer implements Runnable{
-
-    private static final Logger logger = LoggerFactory.getLogger(RunnableServer.class);
-
-    private int port = 8080;
-    private List<Class<? extends ChannelHandler>> handlerClassList = new ArrayList<Class<? extends ChannelHandler>>();
-
-    public void setPort(int port){
-        this.port = port;
-    }
-
-    public void addHandler(Class<? extends ChannelHandler> clazz){
-        this.handlerClassList.add(clazz);
-    }
+    private static final Logger logger = LoggerFactory.getLogger(DefaultServer.class);
 
     @Override
     public void run(){
