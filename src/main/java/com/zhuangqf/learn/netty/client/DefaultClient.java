@@ -48,19 +48,14 @@ public class DefaultClient extends AbstractEndpoint implements Runnable,Closeabl
     }
 
     void send(String message){
-        logger.debug(String.valueOf(channel.isActive()));
-        logger.debug(String.valueOf(channel.isOpen()));
-        logger.debug(String.valueOf(channel.isRegistered()));
-        logger.debug(String.valueOf(channel.remoteAddress()));
-        logger.debug(String.valueOf(channel.isWritable()));
         channel.writeAndFlush(channel.alloc().buffer(message.length()).writeBytes(message.getBytes())).addListener(future-> logger.info("client send message:"+message+"->"+future.isSuccess()));
     }
 
     @Override
     public void close() throws IOException {
         channel.close().addListener(future-> {
-            logger.info("client disconnect with "+host+":"+port);
-            workerGroup.shutdownGracefully().addListener(shutdownFuture-> logger.info("client shutdown"));
+            logger.info("client disconnect with "+host+":"+port+"->"+future.isSuccess());
+            workerGroup.shutdownGracefully().addListener(shutdownFuture-> logger.info("client shutdown->"+shutdownFuture.isSuccess()));
         });
     }
 }

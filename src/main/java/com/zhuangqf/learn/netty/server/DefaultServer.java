@@ -9,40 +9,49 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
+import java.io.IOException;
+
 /**
  * @author zhuangqf
  */
-public class DefaultServer extends AbstractEndpoint implements Runnable{
+public class DefaultServer extends AbstractEndpoint implements Runnable,Closeable{
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultServer.class);
+    private EventLoopGroup bossGroup;
+    private EventLoopGroup workGroup;
+    private Channel channel;
 
     @Override
-    public void run(){
-        EventLoopGroup bossGroup = new NioEventLoopGroup();
-        EventLoopGroup workGroup = new NioEventLoopGroup();
-        try {
-            ServerBootstrap bootstrap = new ServerBootstrap();
-            bootstrap.group(bossGroup, workGroup)
-                    .channel(NioServerSocketChannel.class)
-                    .childHandler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        protected void initChannel(SocketChannel channel) throws Exception {
-                            for(Class clazz: handlerClassList){
-                                 ChannelHandler handler = (ChannelHandler) clazz.getDeclaredConstructor().newInstance();
-                                 channel.pipeline().addLast(handler);
-                            }
+    public void run() {
+        bossGroup = new NioEventLoopGroup();
+        workGroup = new NioEventLoopGroup();
+        ServerBootstrap bootstrap = new ServerBootstrap();
+        bootstrap.group(bossGroup, workGroup)
+                .channel(NioServerSocketChannel.class)
+                .childHandler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel channel) throws Exception {
+                        for (Class<? extends ChannelHandler> clazz : handlerClassList) {
+                            ChannelHandler handler = clazz.getDeclaredConstructor().newInstance();
+                            channel.pipeline().addLast(handler);
                         }
-                    })
-                    .option(ChannelOption.SO_BACKLOG, 128)
-                    .childOption(ChannelOption.SO_KEEPALIVE, true);
-            logger.info("server start");
-            ChannelFuture future = bootstrap.bind(port).sync();
-            future.channel().closeFuture().sync();
-        } catch (InterruptedException ignored) {
-        } finally {
+                    }
+                })
+                .option(ChannelOption.SO_BACKLOG, 128)
+                .childOption(ChannelOption.SO_KEEPALIVE, true);
+
+        channel = bootstrap.bind(port).addListener(connectFuture->logger.info("[server start:"+port+"]->"
+                +connectFuture.isSuccess())).channel();
+    }
+
+    @Override
+    public void close() throws IOException {
+        channel.close().addListener(channelFuture->{
+            logger.info("[server close channel]->"+channelFuture.isSuccess());
             workGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
-            logger.info("server shutdown");
-        }
+            logger.info("[server shutdown]");
+        });
     }
 }
