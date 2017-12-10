@@ -4,7 +4,6 @@ import com.zhuangqf.learn.netty.handler.EventLoggerHandler;
 import com.zhuangqf.learn.netty.handler.PrintHandler;
 
 import java.io.IOException;
-import java.util.Scanner;
 
 public class DefaultClientTest {
 
@@ -13,16 +12,8 @@ public class DefaultClientTest {
         client.addHandler(EventLoggerHandler.class);
         client.addHandler(PrintHandler.class);
         client.run();
-        Scanner scanner = new Scanner(System.in);
-        while (scanner.hasNext()){
-            String message = scanner.nextLine();
-            if("exit".equals(message)){
-                client.close();
-                break;
-            }else {
-                client.send(message);
-            }
-        }
+        client.send("hello world");
+        client.close();
     }
 
 }
