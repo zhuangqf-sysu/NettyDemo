@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * @author zhuangqf
@@ -27,20 +28,16 @@ public class DefaultServer extends AbstractEndpoint implements Runnable,Closeabl
         bossGroup = new NioEventLoopGroup();
         workGroup = new NioEventLoopGroup();
         ServerBootstrap bootstrap = new ServerBootstrap();
-        bootstrap.group(bossGroup, workGroup)
-                .channel(NioServerSocketChannel.class)
-                .childHandler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    protected void initChannel(SocketChannel channel) throws Exception {
-                        for (Class<? extends ChannelHandler> clazz : handlerClassList) {
-                            ChannelHandler handler = clazz.getDeclaredConstructor().newInstance();
-                            channel.pipeline().addLast(handler);
-                        }
-                    }
-                })
-                .option(ChannelOption.SO_BACKLOG, 128)
-                .childOption(ChannelOption.SO_KEEPALIVE, true);
-
+        try {
+            bootstrap.group(bossGroup, workGroup)
+                    .channel(NioServerSocketChannel.class)
+                    .childHandler(initializerClass.getDeclaredConstructor().newInstance())
+                    .option(ChannelOption.SO_BACKLOG, 128)
+                    .childOption(ChannelOption.SO_KEEPALIVE, true);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            e.printStackTrace();
+            return;
+        }
         channel = bootstrap.bind(port).addListener(connectFuture->logger.info("[server start:"+port+"]->"
                 +connectFuture.isSuccess())).channel();
     }

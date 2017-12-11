@@ -4,13 +4,14 @@ import com.zhuangqf.learn.netty.AbstractEndpoint;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+
 /**
  * @author zhuangqf
  */
@@ -30,18 +31,15 @@ public class DefaultClient extends AbstractEndpoint implements Runnable,Closeabl
     public void run() {
         workerGroup = new NioEventLoopGroup();
         Bootstrap bootstrap = new Bootstrap();
-        bootstrap.group(workerGroup)
-                .channel(NioSocketChannel.class)
-                .option(ChannelOption.SO_KEEPALIVE, true)
-                .handler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    protected void initChannel(SocketChannel channel) throws Exception {
-                        for (Class<? extends ChannelHandler> clazz : handlerClassList) {
-                            ChannelHandler handler = clazz.getDeclaredConstructor().newInstance();
-                            channel.pipeline().addLast(handler);
-                        }
-                    }
-                });
+        try {
+            bootstrap.group(workerGroup)
+                    .channel(NioSocketChannel.class)
+                    .option(ChannelOption.SO_KEEPALIVE, true)
+                    .handler(initializerClass.getDeclaredConstructor().newInstance());
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            e.printStackTrace();
+            return;
+        }
         ChannelFuture channelFuture =  bootstrap.connect(host,port);
         channelFuture.addListener(future -> logger.info("client connect with "+host+":"+port+"->"+future.isSuccess()));
         channel = channelFuture.channel();
